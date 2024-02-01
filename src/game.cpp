@@ -1,28 +1,33 @@
-#include "game.hpp"
-#include "main_menu.hpp"
-#include "multiplayer.hpp"
+#include "headers/game.hpp"
+#include "headers/main_menu.hpp"
+#include "headers/multiplayer.hpp"
+#include "headers/armoury.hpp"
+
+Multiplayer* mp;
+MainMenu* mm;
+Armoury* ar;
+
+bool end = false;
 
 Game::Game(){
 
+    mm = new MainMenu();
+    mp = new Multiplayer();
+    ar = new Armoury();
     
 
-    menu_loop();
+    game_loop();
     
 }
 
 Game::~Game(){
-    
+    delete mp;
+    delete mm;
 }
 
-int Game::menu_loop(){
+int Game::game_loop(){
 
     short decision {-1};
-
-    Multiplayer* mp;
-
-    MainMenu* mm = new MainMenu();
-    decision = mm->main_menu();
-    delete mm;
 
     /*
     Post main menu divert to:
@@ -32,21 +37,28 @@ int Game::menu_loop(){
     3 - Settings
     4 - Exit
     */
-    switch(decision){
+    while(!end){
 
-        case 0:
-            break;
-        case 1:
-            mp = new Multiplayer();
-            delete mp;
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
-            break;
+        decision = mm->display_main_menu();
+
+        switch(decision){
+
+            case 0:
+                break;
+            case 1:
+                mp->display_multiplayer();
+                break;
+            case 2:
+                ar->display_armoury();
+                break;
+            case 3:
+                break;
+            case 4:
+                end = true;
+                break;
+        }
     }
+    
 
     
 

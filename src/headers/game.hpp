@@ -9,6 +9,6 @@ public:
 
     Game();
     ~Game();
-    int menu_loop();
+    int game_loop();
 };
 

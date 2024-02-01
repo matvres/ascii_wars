@@ -1,9 +1,9 @@
-#include "multiplayer.hpp"
+#include "headers/multiplayer.hpp"
 #include <ncurses/ncurses.h>
-#include "globals.hpp"
+#include "headers/globals.hpp"
 
-Multiplayer::Multiplayer(){
-
+void Multiplayer::display_multiplayer(){
+    
     // Create main window with border
     main_multi_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
     refresh();
@@ -19,6 +19,9 @@ Multiplayer::Multiplayer(){
     while(getch() != 10){
         
     }
+}
+
+Multiplayer::Multiplayer(){
 
 }
 

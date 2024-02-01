@@ -2,8 +2,8 @@
 #include <vector>
 #include <string>
 #include <ncurses/ncurses.h>
-#include "game.hpp"
-#include "globals.hpp"
+#include "headers/game.hpp"
+#include "headers/globals.hpp"
 
 int TER_HEIGHT;
 int TER_WIDTH;

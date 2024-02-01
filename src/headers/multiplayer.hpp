@@ -7,6 +7,8 @@ public:
 
     WINDOW* main_multi_win;
 
+    void display_multiplayer();
+
     Multiplayer();
     ~Multiplayer();
 

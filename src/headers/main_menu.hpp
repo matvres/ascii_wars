@@ -18,6 +18,6 @@ public:
     MainMenu();
     ~MainMenu();
     
-    int main_menu();
+    int display_main_menu();
 
 };
