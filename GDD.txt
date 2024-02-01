@@ -1,0 +1,27 @@
+main menu
+    singleplayer (hotseat)
+    multiplayer (tba)
+    armoury
+    settings
+    exit
+
+singleplayer
+    pick side
+    pick deck
+    startgame
+        deployment
+        map window
+        keybinds window
+        input window
+        log window
+        playerstats window & game trackers
+
+armoury
+    list decks (side, size (full/full))
+    create deck
+        pick side
+        display available units + desc
+        pick units through input using point system
+        save or discard deck
+    delete deck
+    view units => major menu print v ncurses okno
