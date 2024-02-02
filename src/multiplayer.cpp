@@ -19,6 +19,8 @@ void Multiplayer::display_multiplayer(){
     while(getch() != 10){
         //TODO...
     }
+
+    delwin(main_multi_win);
 }
 
 Multiplayer::Multiplayer(){

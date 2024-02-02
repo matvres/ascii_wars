@@ -80,6 +80,10 @@ int MainMenu::display_main_menu() {
         }
     }
 
+    delwin(main_menu_win);
+    delwin(menu_win);
+
+
     return selection;
 
 }
