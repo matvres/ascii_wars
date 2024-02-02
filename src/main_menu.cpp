@@ -8,6 +8,8 @@
 
 int MainMenu::display_main_menu() {
 
+    clear();
+
     start_color();
     init_pair(1, COLOR_RED, COLOR_WHITE);
     

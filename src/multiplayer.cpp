@@ -17,7 +17,7 @@ void Multiplayer::display_multiplayer(){
     wrefresh(main_multi_win);
 
     while(getch() != 10){
-        
+        //TODO...
     }
 }
 
