@@ -22,6 +22,6 @@ public:
     void remove_unit_from_deck();
 
 
-    Deck(std::string d_name, std::string d_prefix, int d_currrent_size = 0, int d_size_limit = 20);
+    Deck(std::string d_name, std::string d_prefix, int d_currrent_size, int d_size_limit);
     ~Deck();
 };
