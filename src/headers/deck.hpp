@@ -3,8 +3,6 @@
 #include <string>
 #include "unit.hpp"
 
-
-
 class Deck{
 private:
 
@@ -22,6 +20,7 @@ public:
     void remove_unit_from_deck();
 
 
+    Deck();
     Deck(std::string d_name, std::string d_prefix, int d_currrent_size, int d_size_limit);
     ~Deck();
 };

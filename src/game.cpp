@@ -7,7 +7,7 @@ Multiplayer* mp;
 MainMenu* mm;
 Armoury* ar;
 
-bool end = false;
+bool end {false};
 
 Game::Game(){
 
@@ -50,6 +50,7 @@ int Game::game_loop(){
                 break;
             case 2:
                 ar->display_armoury();
+                ar->armoury_loop();
                 break;
             case 3:
                 break;

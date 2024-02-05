@@ -9,9 +9,6 @@
 int MainMenu::display_main_menu() {
 
     clear();
-
-    start_color();
-    init_pair(1, COLOR_RED, COLOR_WHITE);
     
     // Create main window with border
     main_menu_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
