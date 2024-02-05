@@ -7,7 +7,6 @@
 
 std::vector<std::string> columns {"Logistics:", "Ground forces:", "Helicopters:", "Airforce:", "Naval:"};
 
-std::vector<Deck> decks;
 
 short user_action {-1};
 
@@ -48,7 +47,8 @@ void Armoury::display_armoury(){
     short col {0};
 
     for(int i {0}; i < decks.size(); i++){
-        mvwprintw(decks_pane,4+i, 4, (decks.at(i)).deck_name.c_str());    // POPRAVI IZPIS!!!
+        mvwprintw(decks_pane, 4+i, 4, (decks.at(i)).deck_name.c_str());    // POPRAVI IZPIS!!!
+        mvwprintw(decks_pane, 4+i, 4+(decks.at(i)).deck_name.length(), " (%d/%d)", decks.at(i).current_size, deck_size_limit);
     }
     wrefresh(decks_pane);
 
@@ -116,27 +116,36 @@ void Armoury::armoury_loop(){
 void Armoury::create_new_deck(){
 
     create_deck_pane = newwin(TER_HEIGHT/3, TER_WIDTH/4, TER_HEIGHT/2 - TER_HEIGHT/6, TER_WIDTH/2 - TER_WIDTH/8);
-    Deck new_deck;
+    Deck new_deck("default_name", "std", 0);
 
     short name_length_limit {15};
     bool confirm_name {false};
-    std::string deck_name;
+    std::string deck_name = "               ";
     char user_input {};
-    short num_of_input {};
+    short num_of_input {0};
 
     // Create decks pane with border
     box(create_deck_pane,0,0);
     mvwprintw(create_deck_pane,0,4,"CREATE NEW DECK");
-    mvwprintw(create_deck_pane,2,4,"(max 15 characters, ENTER to confirm)");
-    mvwprintw(create_deck_pane,3,4,"Deck name:");
+    mvwprintw(create_deck_pane,2,4,"(max 15 characters)");
+    mvwprintw(create_deck_pane,4,4,"Deck name:");
+    mvwprintw(create_deck_pane,5,4,"(Press ENTER to confirm)");
     wrefresh(create_deck_pane);
 
     while(!confirm_name){
 
         user_input = wgetch(create_deck_pane);
 
+        if(num_of_input > 14){
+            num_of_input = 14;
+        }
+
+        if(num_of_input < 0){
+            num_of_input = 0;
+        }
+
         // User pressed ENTER to confirm name
-        if(num_of_input > 1 && user_input == 10){
+        if(num_of_input >= 1 && user_input == 10){
             confirm_name = true;
             new_deck.deck_name = deck_name;
             decks.push_back(new_deck);
@@ -145,26 +154,20 @@ void Armoury::create_new_deck(){
 
         // User used BACKSPACE
         if(!deck_name.empty() && user_input == 8){
-            deck_name.pop_back();
+            deck_name[num_of_input-1] = ' ';
             num_of_input--;
-        }
 
         // Append user character to deck name
-        else if(num_of_input <= 15){
-            deck_name += user_input;
-            mvwprintw(create_deck_pane,3,15,deck_name.c_str());
+        }else if(num_of_input < 15 && (user_input >= 32 && user_input <= 126)){
+            deck_name[num_of_input] = user_input;
+            num_of_input++;
         }
-        
-        num_of_input++;
+
+        mvwprintw(create_deck_pane,4,15,deck_name.c_str());
         wrefresh(create_deck_pane);
     }
 
-    mvwprintw(create_deck_pane,8,4,deck_name.c_str());
     wrefresh(create_deck_pane);
-
-    
-
-    getch();
     delwin(create_deck_pane);
 
 }
