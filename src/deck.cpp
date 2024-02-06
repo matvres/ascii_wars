@@ -1,9 +1,10 @@
 #include "headers/deck.hpp"
 #include "headers/globals.hpp"
 
-
 std::vector<Deck> decks;
-int deck_size_limit {20};
+short deck_size_limit {20};
+short max_num_decks {40};
+short current_num_decks {0};
 
 void Deck::add_unit_to_deck(){
 

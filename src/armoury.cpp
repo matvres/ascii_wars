@@ -6,9 +6,9 @@
 #include "headers/deck.hpp"
 
 std::vector<std::string> columns {"Logistics:", "Ground forces:", "Helicopters:", "Airforce:", "Naval:"};
-
-
 short user_action {-1};
+
+int d_selected {0};
 
 Armoury::Armoury(){
     main_armoury_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
@@ -34,6 +34,7 @@ void Armoury::display_armoury(){
 
     clear();
     refresh();
+    keypad(stdscr,true);
 
     // Create main window with border
     box(main_armoury_win,0,0);
@@ -41,15 +42,9 @@ void Armoury::display_armoury(){
 
     // Create decks pane with border
     box(decks_pane,0,0);
-    mvwprintw(decks_pane,0,4,"DECKS PANEL");
-
-    short row {0};
-    short col {0};
-
-    for(int i {0}; i < decks.size(); i++){
-        mvwprintw(decks_pane, 4+i, 4, (decks.at(i)).deck_name.c_str());    // POPRAVI IZPIS!!!
-        mvwprintw(decks_pane, 4+i, 4+(decks.at(i)).deck_name.length(), " (%d/%d)", decks.at(i).current_size, deck_size_limit);
-    }
+    mvwprintw(decks_pane,0,4,"DECKS PANEL ");
+    mvwprintw(decks_pane,0,16,"(%i/%i)", current_num_decks, max_num_decks);
+    display_decks();
     wrefresh(decks_pane);
 
     // Create instructions pane with border
@@ -61,10 +56,10 @@ void Armoury::display_armoury(){
     mvwprintw(instructions_pane,5,4,"Create new deck: press C");
     wattroff(instructions_pane, COLOR_PAIR(2));
     wattron(instructions_pane, COLOR_PAIR(3));
-    mvwprintw(instructions_pane,7,4,"Edit deck: press E");
+    mvwprintw(instructions_pane,7,4,"Edit (selected) deck: press E");
     wattroff(instructions_pane, COLOR_PAIR(3));
     wattron(instructions_pane, COLOR_PAIR(4));
-    mvwprintw(instructions_pane,9,4,"Delete deck: press D");
+    mvwprintw(instructions_pane,9,4,"Delete (selected) deck: press D");
     wattroff(instructions_pane, COLOR_PAIR(4));
     mvwprintw(instructions_pane,11,4,"Save changes: press S");
     mvwprintw(instructions_pane,12,4,"Return to main menu: press B");
@@ -106,10 +101,23 @@ void Armoury::armoury_loop(){
         if(user_action == 'b' || user_action == 'B'){
             break;
         }else if(user_action == 'c' || user_action == 'C'){
-            create_new_deck();
-        }   
+            if(current_num_decks < max_num_decks){
+                create_new_deck();
+                current_num_decks++;
+            }
+                
+        }else if(user_action == KEY_RIGHT || user_action == KEY_LEFT){
+            deck_selector();
+        }else if(user_action == 'd' || user_action == 'D'){
+            // ne pozabit da mora deck obstajat sploh in bit izbran da se ga lahko zbriše
+            // po možnosti dodamo al yes/no + select ali pa da vneseš ime decka in ga pobriše
+        }else{
+            // no defined action
+        }
 
     }
+
+    
 
 }
 
@@ -170,7 +178,46 @@ void Armoury::create_new_deck(){
 
     wrefresh(create_deck_pane);
     delwin(create_deck_pane);
+    display_decks();
+}
 
+void Armoury::display_decks(){
+
+    // 10 na stolpec
+    // max 4 stolpci
+
+    short row {0};
+    short col {0};
+
+    // Print all decks
+    for(int i {0}; i < decks.size(); i++){
+
+        if(i == d_selected){
+            wattron(decks_pane, A_REVERSE);
+            mvwprintw(decks_pane, 2+row*2, col*25 + 2, (decks.at(i)).deck_name.c_str());
+            mvwprintw(decks_pane, 2+row*2, col*25 + (decks.at(i)).deck_name.length() + 2, " (%i/%i)", decks.at(i).current_size, deck_size_limit);
+            wattroff(decks_pane, A_REVERSE);
+        }else{
+            mvwprintw(decks_pane, 2+row*2, col*25 + 2, (decks.at(i)).deck_name.c_str());
+            mvwprintw(decks_pane, 2+row*2, col*25 + (decks.at(i)).deck_name.length() + 2, " (%i/%i)", decks.at(i).current_size, deck_size_limit);
+        }
+        
+        if(row < 9){
+            row++;
+        }else{
+            row = 0;
+            col++;
+        }
+    }
+}
+
+void Armoury::deck_selector(){
+
+    if(user_action == KEY_RIGHT && (d_selected < decks.size()-1)){
+        d_selected++;
+    }else if(user_action == KEY_LEFT && (d_selected > 0)){
+        d_selected--;
+    }
 }
 
 void Armoury::delete_deck(){

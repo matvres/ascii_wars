@@ -17,8 +17,8 @@ Game::Game(){
     
     game_loop();
 
-    delete mp;
     delete mm;
+    delete mp;
     delete ar;
 }
 
