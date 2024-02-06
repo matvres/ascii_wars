@@ -134,15 +134,15 @@ void Armoury::create_new_deck(){
 
     while(!confirm_name){
 
-        user_input = wgetch(create_deck_pane);
-
-        if(num_of_input > 14){
-            num_of_input = 14;
+        if(num_of_input > 15){
+            num_of_input = 15;
         }
 
-        if(num_of_input < 0){
+        if(num_of_input <= 0){
             num_of_input = 0;
         }
+
+        user_input = wgetch(create_deck_pane);
 
         // User pressed ENTER to confirm name
         if(num_of_input >= 1 && user_input == 10){
@@ -153,10 +153,11 @@ void Armoury::create_new_deck(){
         }
 
         // User used BACKSPACE
-        if(!deck_name.empty() && user_input == 8){
-            deck_name[num_of_input-1] = ' ';
-            num_of_input--;
+        if(num_of_input > 0 && user_input == 8){
 
+            num_of_input--;
+            deck_name[num_of_input] = ' ';
+            
         // Append user character to deck name
         }else if(num_of_input < 15 && (user_input >= 32 && user_input <= 126)){
             deck_name[num_of_input] = user_input;

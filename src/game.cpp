@@ -16,13 +16,14 @@ Game::Game(){
     ar = new Armoury();
     
     game_loop();
-    
-}
 
-Game::~Game(){
     delete mp;
     delete mm;
     delete ar;
+}
+
+Game::~Game(){
+    
 }
 
 int Game::game_loop(){
