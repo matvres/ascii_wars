@@ -15,6 +15,7 @@ public:
     WINDOW* instructions_pane;
 
     WINDOW* create_deck_pane;
+    WINDOW* delete_deck_pane;
 
     // Main display and flow operations
     void display_armoury();

@@ -114,15 +114,12 @@ void Armoury::armoury_loop(){
         }else if(user_action == 'd' || user_action == 'D'){
             if(current_num_decks > 0){
                 delete_deck();
-                current_num_decks--;
             }
         }else{
             // no defined action
         }
 
     }
-
-    
 
 }
 
@@ -223,11 +220,38 @@ void Armoury::deck_selector(){
 }
 
 void Armoury::delete_deck(){
-    decks.erase(decks.begin() + d_selected);
-    d_selected--;
-    if(d_selected < 0){
-        d_selected = 0;
+
+    delete_deck_pane = newwin(TER_HEIGHT/4, TER_WIDTH/4, TER_HEIGHT/2 - TER_HEIGHT/8, TER_WIDTH/2 - TER_WIDTH/8);
+    char inp {};
+    bool bck = false;
+
+    // Create decks pane with border
+    box(delete_deck_pane,0,0);
+    keypad(delete_deck_pane,true);
+    mvwprintw(delete_deck_pane,2,4,"DELETE selected deck?");
+    mvwprintw(delete_deck_pane,4,4,"(Press ENTER to confirm)");
+    wrefresh(delete_deck_pane);
+
+    while(!bck){
+
+        inp = wgetch(delete_deck_pane);
+
+        // User pressed ENTER to confirm name
+        if(inp == 10){
+            decks.erase(decks.begin() + d_selected);
+            current_num_decks--;
+            d_selected--;
+            if(d_selected < 0){
+                d_selected = 0;
+            }
+            bck = true;
+        }else{
+            bck = true;
+        }
+
     }
+    
+    delwin(delete_deck_pane);
 }
 
 void Armoury::edit_deck(){
