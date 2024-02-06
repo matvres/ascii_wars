@@ -7,7 +7,6 @@
 
 std::vector<std::string> columns {"Logistics:", "Ground forces:", "Helicopters:", "Airforce:", "Naval:"};
 short user_action {-1};
-
 int d_selected {0};
 
 Armoury::Armoury(){
@@ -18,6 +17,7 @@ Armoury::Armoury(){
     unit_info_pane = newwin(TER_HEIGHT/2+5,TER_WIDTH/4 + 16,24,(TER_WIDTH/2)+2);
     deck_units_pane = newwin(TER_HEIGHT-2,30,1,TER_WIDTH-32);
 
+    keypad(stdscr,true);
 }
 
 Armoury::~Armoury(){
@@ -32,15 +32,15 @@ Armoury::~Armoury(){
 
 void Armoury::display_armoury(){
 
-    clear();
+    //clear();
     refresh();
-    keypad(stdscr,true);
-
+    
     // Create main window with border
     box(main_armoury_win,0,0);
     wrefresh(main_armoury_win);
 
     // Create decks pane with border
+    wclear(decks_pane);
     box(decks_pane,0,0);
     mvwprintw(decks_pane,0,4,"DECKS PANEL ");
     mvwprintw(decks_pane,0,16,"(%i/%i)", current_num_decks, max_num_decks);
@@ -66,6 +66,7 @@ void Armoury::display_armoury(){
     wrefresh(instructions_pane);
 
     // Create units pane with border
+    wclear(units_pane);
     box(units_pane,0,0);
     mvwprintw(units_pane,0,4,"UNITS LIST PANEL");
 
@@ -79,11 +80,13 @@ void Armoury::display_armoury(){
     
 
      // Create unit info pane with border
+    wclear(unit_info_pane);
     box(unit_info_pane,0,0);
     mvwprintw(unit_info_pane,0,4,"UNIT INFORMATION PANEL");
     wrefresh(unit_info_pane);
 
     // Create deck units info pane with border
+    wclear(deck_units_pane);
     box(deck_units_pane,0,0);
     mvwprintw(deck_units_pane,0,4,"UNITS IN DECK");
     wrefresh(deck_units_pane);
@@ -109,8 +112,10 @@ void Armoury::armoury_loop(){
         }else if(user_action == KEY_RIGHT || user_action == KEY_LEFT){
             deck_selector();
         }else if(user_action == 'd' || user_action == 'D'){
-            // ne pozabit da mora deck obstajat sploh in bit izbran da se ga lahko zbriše
-            // po možnosti dodamo al yes/no + select ali pa da vneseš ime decka in ga pobriše
+            if(current_num_decks > 0){
+                delete_deck();
+                current_num_decks--;
+            }
         }else{
             // no defined action
         }
@@ -183,9 +188,6 @@ void Armoury::create_new_deck(){
 
 void Armoury::display_decks(){
 
-    // 10 na stolpec
-    // max 4 stolpci
-
     short row {0};
     short col {0};
 
@@ -221,7 +223,11 @@ void Armoury::deck_selector(){
 }
 
 void Armoury::delete_deck(){
-    
+    decks.erase(decks.begin() + d_selected);
+    d_selected--;
+    if(d_selected < 0){
+        d_selected = 0;
+    }
 }
 
 void Armoury::edit_deck(){
