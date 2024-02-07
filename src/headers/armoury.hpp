@@ -28,6 +28,11 @@ public:
     void delete_deck();
     void edit_deck();
 
+    // Unit operations
+    void generate_unit_armoury();
+    void unit_selector();
+    void display_units();
+
     Armoury();
     ~Armoury();
 };

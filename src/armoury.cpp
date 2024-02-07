@@ -4,10 +4,12 @@
 #include "headers/armoury.hpp"
 #include "headers/globals.hpp"
 #include "headers/deck.hpp"
+#include "headers/unit.hpp"
 
 std::vector<std::string> columns {"Logistics:", "Ground forces:", "Helicopters:", "Airforce:", "Naval:"};
 short user_action {-1};
 int d_selected {0};
+int u_selected {0};
 
 Armoury::Armoury(){
     main_armoury_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
@@ -17,7 +19,10 @@ Armoury::Armoury(){
     unit_info_pane = newwin(TER_HEIGHT/2+5,TER_WIDTH/4 + 16,24,(TER_WIDTH/2)+2);
     deck_units_pane = newwin(TER_HEIGHT-2,30,1,TER_WIDTH-32);
 
+    generate_unit_armoury();
+
     keypad(stdscr,true);
+    keypad(delete_deck_pane,true);
 }
 
 Armoury::~Armoury(){
@@ -32,7 +37,6 @@ Armoury::~Armoury(){
 
 void Armoury::display_armoury(){
 
-    //clear();
     refresh();
     
     // Create main window with border
@@ -75,6 +79,7 @@ void Armoury::display_armoury(){
         mvwprintw(units_pane,2,i*20 + 4,columns[i].c_str());
         wattroff(units_pane, A_REVERSE);
     }
+    display_units();
     mvwprintw(units_pane,3,2,"________________________________________________________________________________________________");
     wrefresh(units_pane);
     
@@ -115,6 +120,8 @@ void Armoury::armoury_loop(){
             if(current_num_decks > 0){
                 delete_deck();
             }
+        }else if(user_action == KEY_DOWN || user_action == KEY_UP){
+            unit_selector();
         }else{
             // no defined action
         }
@@ -221,13 +228,12 @@ void Armoury::deck_selector(){
 
 void Armoury::delete_deck(){
 
-    delete_deck_pane = newwin(TER_HEIGHT/4, TER_WIDTH/4, TER_HEIGHT/2 - TER_HEIGHT/8, TER_WIDTH/2 - TER_WIDTH/8);
+    delete_deck_pane = newwin(TER_HEIGHT/5, TER_WIDTH/5, TER_HEIGHT/2 - TER_HEIGHT/10, TER_WIDTH/2 - TER_WIDTH/10);
     char inp {};
     bool bck = false;
 
     // Create decks pane with border
     box(delete_deck_pane,0,0);
-    keypad(delete_deck_pane,true);
     mvwprintw(delete_deck_pane,2,4,"DELETE selected deck?");
     mvwprintw(delete_deck_pane,4,4,"(Press ENTER to confirm)");
     wrefresh(delete_deck_pane);
@@ -254,6 +260,52 @@ void Armoury::delete_deck(){
     delwin(delete_deck_pane);
 }
 
+void Armoury::unit_selector(){
+
+    if(user_action == KEY_DOWN && (u_selected < ground_units.size()-1)){
+        u_selected++;
+    }else if(user_action == KEY_UP && (u_selected > 0)){
+        u_selected--;
+    }
+}
+
+void Armoury::display_units(){
+
+    short row {0};
+    short col {0};
+
+    // Print all ground units
+    for(int i {0}; i < ground_units.size(); i++){
+
+        if(i == u_selected){
+            wattron(units_pane, A_REVERSE);
+            mvwprintw(units_pane, 5+row*2, col*25 + 2, (ground_units.at(i)).unit_name.c_str()); // popravi formatiranje izpisa glede na units panel
+            wattroff(units_pane, A_REVERSE);
+        }else{
+            mvwprintw(units_pane, 5+row*2, col*25 + 2, (ground_units.at(i)).unit_name.c_str()); // popravi formatiranje izpisa glede na units panel
+        }
+        
+        if(row < 14){
+            row++;
+        }else{
+            row = 0;
+            col++;
+        }
+    }
+}
+
+// TODO...
 void Armoury::edit_deck(){
     
+}
+
+// Creates 1 instance of every unit for armoury
+void Armoury::generate_unit_armoury(){
+
+    // TODO...
+    Unit new_test_unit1('X', 'S', 1, 10, 2, 1, 1, 0.8, "Infantry", "Generic infantry unit");
+    Unit new_test_unit2('T', 'L', 2, 15, 4, 3, 2, 0.7, "Tank", "Generic tank unit");
+    ground_units.push_back(new_test_unit1);
+    ground_units.push_back(new_test_unit2);
+
 }

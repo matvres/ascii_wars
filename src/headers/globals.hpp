@@ -12,3 +12,6 @@ extern std::vector<Deck> decks;
 extern short deck_size_limit;
 extern short max_num_decks;
 extern short current_num_decks;
+
+// Units related
+extern std::vector<Unit> ground_units;
