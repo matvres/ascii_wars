@@ -11,7 +11,6 @@ int MainMenu::display_main_menu() {
     clear();
     
     // Create main window with border
-    main_menu_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
     refresh();
     box(main_menu_win,0,0);
 
@@ -22,9 +21,6 @@ int MainMenu::display_main_menu() {
     wattroff(main_menu_win, COLOR_PAIR(1));
 
     // Create menu box
-    menu_box_h = 15;
-    menu_box_w = 24;
-    menu_win = newwin(menu_box_h,menu_box_w,TER_HEIGHT/3,TER_WIDTH/2 - 12);
     box(menu_win,0,0);
     keypad(menu_win,true);
     wrefresh(menu_win);
@@ -77,18 +73,18 @@ int MainMenu::display_main_menu() {
         }
     }
 
-    delwin(main_menu_win);
-    delwin(menu_win);
-
-
     return selection;
-
 }
 
 MainMenu::MainMenu() {
-
+    
+    main_menu_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
+    menu_box_h = 15;
+    menu_box_w = 24;
+    menu_win = newwin(menu_box_h,menu_box_w,TER_HEIGHT/3,TER_WIDTH/2 - 12);
 }
 
 MainMenu::~MainMenu(){
-
+    delwin(main_menu_win);
+    delwin(menu_win);
 }

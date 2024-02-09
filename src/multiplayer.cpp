@@ -5,7 +5,6 @@
 void Multiplayer::display_multiplayer(){
     
     // Create main window with border
-    main_multi_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
     refresh();
     box(main_multi_win,0,0);
 
@@ -20,13 +19,13 @@ void Multiplayer::display_multiplayer(){
         //TODO...
     }
 
-    delwin(main_multi_win);
+    
 }
 
 Multiplayer::Multiplayer(){
-
+    main_multi_win = newwin(TER_HEIGHT,TER_WIDTH,0,0);
 }
 
 Multiplayer::~Multiplayer(){
-
+    delwin(main_multi_win);
 }

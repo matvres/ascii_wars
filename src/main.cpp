@@ -5,6 +5,14 @@
 #include "headers/game.hpp"
 #include "headers/globals.hpp"
 
+// Debug related
+int A {};
+int B {};
+int C {};
+int D {};
+int E {};
+//----------------
+
 int TER_HEIGHT;
 int TER_WIDTH;
 
@@ -28,8 +36,10 @@ int main(){
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     init_pair(3, COLOR_CYAN, COLOR_BLACK);
     init_pair(4, COLOR_RED, COLOR_BLACK);
+    init_pair(5, COLOR_WHITE, COLOR_GREEN);
 
     Game* game = new Game();
+    game->game_loop();
     delete game;
 
     endwin();

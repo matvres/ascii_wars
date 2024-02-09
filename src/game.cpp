@@ -14,12 +14,6 @@ Game::Game(){
     mm = new MainMenu();
     mp = new Multiplayer();
     ar = new Armoury();
-    
-    game_loop();
-
-    delete mm;
-    delete mp;
-    delete ar;
 }
 
 Game::~Game(){
@@ -61,8 +55,9 @@ int Game::game_loop(){
         }
     }
     
-
+    delete mp;
+    delete ar;
+    delete mm;
     
-
     return 0;
 }

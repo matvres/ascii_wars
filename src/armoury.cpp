@@ -1,3 +1,4 @@
+#include <iostream>
 #include <ncurses/ncurses.h>
 #include <vector>
 #include <string>
@@ -26,7 +27,7 @@ Armoury::Armoury(){
 }
 
 Armoury::~Armoury(){
-    delwin(main_armoury_win);
+    A = delwin(main_armoury_win);
     delwin(decks_pane);
     delwin(instructions_pane);
     delwin(units_pane);
@@ -36,8 +37,6 @@ Armoury::~Armoury(){
 }
 
 void Armoury::display_armoury(){
-
-    refresh();
     
     // Create main window with border
     box(main_armoury_win,0,0);
@@ -75,9 +74,9 @@ void Armoury::display_armoury(){
     mvwprintw(units_pane,0,4,"UNITS LIST PANEL");
 
     for(int i {0}; i < columns.size(); i++){
-        wattron(units_pane, A_REVERSE);
+        wattron(units_pane, COLOR_PAIR(5));
         mvwprintw(units_pane,2,i*20 + 4,columns[i].c_str());
-        wattroff(units_pane, A_REVERSE);
+        wattroff(units_pane, COLOR_PAIR(5));
     }
     display_units();
     mvwprintw(units_pane,3,2,"________________________________________________________________________________________________");
@@ -123,7 +122,7 @@ void Armoury::armoury_loop(){
         }else if(user_action == KEY_DOWN || user_action == KEY_UP){
             unit_selector();
         }else{
-            // no defined action
+            // no defined legal action
         }
 
     }

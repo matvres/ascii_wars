@@ -15,3 +15,10 @@ extern short current_num_decks;
 
 // Units related
 extern std::vector<Unit> ground_units;
+
+// Debbuging related
+extern int A; 
+extern int B;
+extern int C;
+extern int D;
+extern int E;
