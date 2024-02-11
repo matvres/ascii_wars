@@ -7,8 +7,11 @@
 #include "headers/deck.hpp"
 #include "headers/unit.hpp"
 
-std::vector<std::string> columns {"Logistics:", "Ground forces:", "Helicopters:", "Airforce:", "Naval:"};
 short user_action {-1};
+
+std::vector<std::string> categories {"Infantry", "Armour", "Support", "Logistics", "Drones", "Helicopters", "Airforce", "Naval"};
+int category_id {0};
+
 int d_selected {0};
 int u_selected {0};
 
@@ -27,7 +30,7 @@ Armoury::Armoury(){
 }
 
 Armoury::~Armoury(){
-    A = delwin(main_armoury_win);
+    delwin(main_armoury_win);
     delwin(decks_pane);
     delwin(instructions_pane);
     delwin(units_pane);
@@ -37,6 +40,8 @@ Armoury::~Armoury(){
 }
 
 void Armoury::display_armoury(){
+
+    refresh();
     
     // Create main window with border
     box(main_armoury_win,0,0);
@@ -53,35 +58,39 @@ void Armoury::display_armoury(){
     // Create instructions pane with border
     box(instructions_pane,0,0);
     mvwprintw(instructions_pane,0,4,"INSTRUCTIONS & CONTROLS PANEL");
-    mvwprintw(instructions_pane,2,4,"Select deck from DECKS PANEL: arrow keys LEFT & RIGHT.");
-    mvwprintw(instructions_pane,3,4,"Select unit from UNITS LIST PANEL: arrow keys UP & DOWN.");
-    wattron(instructions_pane, COLOR_PAIR(2));
-    mvwprintw(instructions_pane,5,4,"Create new deck: press C");
-    wattroff(instructions_pane, COLOR_PAIR(2));
+    mvwprintw(instructions_pane,2,4,"--------------------------GENERAL--------------------------");
+    mvwprintw(instructions_pane,3,4," -> RETURN TO MAIN MENU: press B");
     wattron(instructions_pane, COLOR_PAIR(3));
-    mvwprintw(instructions_pane,7,4,"Edit (selected) deck: press E");
+    mvwprintw(instructions_pane,5,4,"------------------------DECKS PANEL------------------------");
     wattroff(instructions_pane, COLOR_PAIR(3));
+    mvwprintw(instructions_pane,6,4," -> SELECT DECK: arrow keys LEFT & RIGHT");
+    mvwprintw(instructions_pane,7,4," -> CREATE NEW DECK:: press C");
+    mvwprintw(instructions_pane,8,4," -> EDIT (SELECTED) DECK: press E");
+    mvwprintw(instructions_pane,9,4,"     -> SAVE CHANGES: press S");
+    mvwprintw(instructions_pane,10,4," -> DELETE (SELECTED) DECK: press D");
+    wattron(instructions_pane, COLOR_PAIR(2));
+    mvwprintw(instructions_pane,12,4,"---------------------UNITS LIST PANEL----------------------");
+    wattroff(instructions_pane, COLOR_PAIR(2));
+    mvwprintw(instructions_pane,13,4," -> SELECT UNIT: arrow keys UP & DOWN");
+    mvwprintw(instructions_pane,14,4," -> SELECT NATION: press N");
+    mvwprintw(instructions_pane,15,4," -> SELECT CATEGORY: press M");
     wattron(instructions_pane, COLOR_PAIR(4));
-    mvwprintw(instructions_pane,9,4,"Delete (selected) deck: press D");
+    mvwprintw(instructions_pane,17,4,"-------------------UNITS INFORMATION PANEL-----------------");
     wattroff(instructions_pane, COLOR_PAIR(4));
-    mvwprintw(instructions_pane,11,4,"Save changes: press S");
-    mvwprintw(instructions_pane,12,4,"Return to main menu: press B");
+    mvwprintw(instructions_pane,18,4," -> ADD (SELECTED) UNIT: press A");
+    mvwprintw(instructions_pane,19,4," -> REMOVE (SELECTED) UNIT: press R");
     wrefresh(instructions_pane);
 
     // Create units pane with border
     wclear(units_pane);
     box(units_pane,0,0);
     mvwprintw(units_pane,0,4,"UNITS LIST PANEL");
-
-    for(int i {0}; i < columns.size(); i++){
-        wattron(units_pane, COLOR_PAIR(5));
-        mvwprintw(units_pane,2,i*20 + 4,columns[i].c_str());
-        wattroff(units_pane, COLOR_PAIR(5));
-    }
-    display_units();
+    mvwprintw(units_pane,2,4,"Nation: ");
+    mvwprintw(units_pane,2,TER_WIDTH/4,"Category: ");
     mvwprintw(units_pane,3,2,"________________________________________________________________________________________________");
+    mvwprintw(units_pane, 2, TER_WIDTH/4 + 10, (categories.at(category_id)).c_str());
+    display_units();
     wrefresh(units_pane);
-    
 
      // Create unit info pane with border
     wclear(unit_info_pane);
@@ -121,6 +130,12 @@ void Armoury::armoury_loop(){
             }
         }else if(user_action == KEY_DOWN || user_action == KEY_UP){
             unit_selector();
+        }else if(user_action == 'm' || user_action == 'M'){
+            if(category_id < categories.size()-1){
+                category_id++;
+            }else{
+                category_id = 0;
+            }
         }else{
             // no defined legal action
         }
@@ -296,6 +311,13 @@ void Armoury::display_units(){
 // TODO...
 void Armoury::edit_deck(){
     
+}
+
+// Switch units category in units panel
+void Armoury::switch_category(){
+    
+    // TODO...
+
 }
 
 // Creates 1 instance of every unit for armoury

@@ -30,6 +30,7 @@ public:
 
     // Unit operations
     void generate_unit_armoury();
+    void switch_category();
     void unit_selector();
     void display_units();
 

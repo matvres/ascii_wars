@@ -1,2 +1,3 @@
 @echo off
-start "ASCII WARS" C:\Users\matevz\Desktop\git_repos\ascii_wars\src\a.exe
+mode con: cols=160 lines=78 
+start "ASCII WARS" C:\Users\matev\Documents\GitHub\ascii_wars\src\a.exe
