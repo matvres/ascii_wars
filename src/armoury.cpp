@@ -9,6 +9,9 @@
 
 short user_action {-1};
 
+std::vector<std::string> nations {"USA, RUS, GER, CHI, FIN, GBR, FRA, POL, IRN, JAP"};
+int nation_id {0};
+
 std::vector<std::string> categories {"Infantry", "Armour", "Support", "Logistics", "Drones", "Helicopters", "Airforce", "Naval"};
 int category_id {0};
 
@@ -26,6 +29,7 @@ Armoury::Armoury(){
     generate_unit_armoury();
 
     keypad(stdscr,true);
+    keypad(create_deck_pane,true);
     keypad(delete_deck_pane,true);
 }
 
@@ -154,13 +158,16 @@ void Armoury::create_new_deck(){
     std::string deck_name = "               ";
     char user_input {};
     short num_of_input {0};
+    short selected_nat {0};
 
     // Create decks pane with border
     box(create_deck_pane,0,0);
     mvwprintw(create_deck_pane,0,4,"CREATE NEW DECK");
     mvwprintw(create_deck_pane,2,4,"(max 15 characters)");
-    mvwprintw(create_deck_pane,4,4,"Deck name:");
-    mvwprintw(create_deck_pane,5,4,"(Press ENTER to confirm)");
+    mvwprintw(create_deck_pane,3,4,"Deck name:");
+    mvwprintw(create_deck_pane,5,4,"Select nation: ");
+    mvwprintw(create_deck_pane,5,19,nations.at(selected_nat).c_str());
+    mvwprintw(create_deck_pane,12,4,"(Press ENTER to confirm)");
     wrefresh(create_deck_pane);
 
     while(!confirm_name){
@@ -175,7 +182,14 @@ void Armoury::create_new_deck(){
 
         user_input = wgetch(create_deck_pane);
 
-        // User pressed ENTER to confirm name
+        // Select nation with arrow keys
+        if(user_input == KEY_RIGHT && selected_nat < nations.size()-1){
+            selected_nat++;
+        }else if(user_input == KEY_LEFT && selected_nat > 1){
+            selected_nat--;
+        }
+
+        // User pressed ENTER to confirm
         if(num_of_input >= 1 && user_input == 10){
             confirm_name = true;
             new_deck.deck_name = deck_name;
@@ -195,7 +209,10 @@ void Armoury::create_new_deck(){
             num_of_input++;
         }
 
-        mvwprintw(create_deck_pane,4,15,deck_name.c_str());
+        mvwprintw(create_deck_pane,3,15,deck_name.c_str());
+        wattron(create_deck_pane, A_REVERSE);
+        mvwprintw(create_deck_pane,5,19,nations.at(selected_nat).c_str());
+        wattroff(create_deck_pane, A_REVERSE);
         wrefresh(create_deck_pane);
     }
 
