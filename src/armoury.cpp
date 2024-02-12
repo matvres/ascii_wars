@@ -91,6 +91,7 @@ void Armoury::display_armoury(){
     mvwprintw(units_pane,2,4,"Nation: ");
     mvwprintw(units_pane,2,TER_WIDTH/4,"Category: ");
     mvwprintw(units_pane,3,2,"________________________________________________________________________________________________");
+    mvwprintw(units_pane, 2, 12, (nations.at(nation_id)).c_str());
     mvwprintw(units_pane, 2, TER_WIDTH/4 + 10, (categories.at(category_id)).c_str());
     display_units();
     wrefresh(units_pane);
@@ -139,6 +140,12 @@ void Armoury::armoury_loop(){
                 category_id++;
             }else{
                 category_id = 0;
+            }
+        }else if(user_action == 'n' || user_action == 'N'){
+            if(nation_id < nations.size()-1){
+                nation_id++;
+            }else{
+                nation_id = 0;
             }
         }else{
             // no defined legal action
