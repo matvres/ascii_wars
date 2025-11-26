@@ -1,5 +1,9 @@
 # ASCII WARS
-c++ terminal game design
+
+## Run:
+python3 ./< ... .py>
+
+## ----Deprecated: c++ terminal game design
 
 ### How to compile:
 g++ test.cpp -o test.exe -lncurses -DNCURSES_STATIC 
