@@ -9,8 +9,9 @@
 
 short user_action {-1};
 
-std::vector<std::string> nations {"USA, RUS, GER, CHI, FIN, GBR, FRA, POL, IRN, JAP"};
+std::vector<std::string> nations {"USA", "RUS", "GER", "CHI", "FIN", "GBR", "FRA", "POL", "IRN", "JAP"};
 int nation_id {0};
+
 
 std::vector<std::string> categories {"Infantry", "Armour", "Support", "Logistics", "Drones", "Helicopters", "Airforce", "Naval"};
 int category_id {0};
@@ -29,7 +30,6 @@ Armoury::Armoury(){
     generate_unit_armoury();
 
     keypad(stdscr,true);
-    keypad(create_deck_pane,true);
     keypad(delete_deck_pane,true);
 }
 
@@ -40,7 +40,6 @@ Armoury::~Armoury(){
     delwin(units_pane);
     delwin(unit_info_pane);
     delwin(deck_units_pane);
-    delwin(create_deck_pane);
 }
 
 void Armoury::display_armoury(){
@@ -92,6 +91,7 @@ void Armoury::display_armoury(){
     mvwprintw(units_pane,2,4,"Nation: ");
     mvwprintw(units_pane,2,TER_WIDTH/4,"Category: ");
     mvwprintw(units_pane,3,2,"________________________________________________________________________________________________");
+    mvwprintw(units_pane, 2, 12, (nations.at(nation_id)).c_str());
     mvwprintw(units_pane, 2, TER_WIDTH/4 + 10, (categories.at(category_id)).c_str());
     display_units();
     wrefresh(units_pane);
@@ -115,6 +115,7 @@ void Armoury::armoury_loop(){
     while(true){
 
         display_armoury();
+        display_decks();
 
         user_action = getch();
 
@@ -140,85 +141,103 @@ void Armoury::armoury_loop(){
             }else{
                 category_id = 0;
             }
+        }else if(user_action == 'n' || user_action == 'N'){
+            if(nation_id < nations.size()-1){
+                nation_id++;
+            }else{
+                nation_id = 0;
+            }
         }else{
             // no defined legal action
         }
-
     }
-
 }
 
 void Armoury::create_new_deck(){
 
     create_deck_pane = newwin(TER_HEIGHT/3, TER_WIDTH/4, TER_HEIGHT/2 - TER_HEIGHT/6, TER_WIDTH/2 - TER_WIDTH/8);
     Deck new_deck("default_name", "std", 0);
-
-    short name_length_limit {15};
+    short new_selected_nat {0};
     bool confirm_name {false};
-    std::string deck_name = "               ";
+    std::string deck_name = "          ";
     char user_input {};
     short num_of_input {0};
-    short selected_nat {0};
+    bool nation_selected {false};
 
     // Create decks pane with border
     box(create_deck_pane,0,0);
     mvwprintw(create_deck_pane,0,4,"CREATE NEW DECK");
-    mvwprintw(create_deck_pane,2,4,"(max 15 characters)");
-    mvwprintw(create_deck_pane,3,4,"Deck name:");
-    mvwprintw(create_deck_pane,5,4,"Select nation: ");
-    mvwprintw(create_deck_pane,5,19,nations.at(selected_nat).c_str());
-    mvwprintw(create_deck_pane,12,4,"(Press ENTER to confirm)");
+    mvwprintw(create_deck_pane,4,4,"Select nation: ");
+    mvwprintw(create_deck_pane,6,4,"(Use arrow keys LEFT & RIGHT)");
+    mvwprintw(create_deck_pane,7,4,"(Press ENTER to confirm nation)");
+    wattron(create_deck_pane, A_REVERSE);
+    mvwprintw(create_deck_pane,4,19,nations.at(new_selected_nat).c_str());
+    wattroff(create_deck_pane, A_REVERSE);
+    mvwprintw(create_deck_pane,10,4,"Deck name:");
+    mvwprintw(create_deck_pane,14,4,"(Press ENTER to confirm name)");
     wrefresh(create_deck_pane);
 
     while(!confirm_name){
 
-        if(num_of_input > 15){
-            num_of_input = 15;
-        }
-
-        if(num_of_input <= 0){
-            num_of_input = 0;
-        }
-
         user_input = wgetch(create_deck_pane);
 
-        // Select nation with arrow keys
-        if(user_input == KEY_RIGHT && selected_nat < nations.size()-1){
-            selected_nat++;
-        }else if(user_input == KEY_LEFT && selected_nat > 1){
-            selected_nat--;
-        }
-
-        // User pressed ENTER to confirm
-        if(num_of_input >= 1 && user_input == 10){
-            confirm_name = true;
-            new_deck.deck_name = deck_name;
-            decks.push_back(new_deck);
-            continue;
-        }
-
-        // User used BACKSPACE
-        if(num_of_input > 0 && user_input == 8){
-
-            num_of_input--;
-            deck_name[num_of_input] = ' ';
+        if(!nation_selected){
             
-        // Append user character to deck name
-        }else if(num_of_input < 15 && (user_input >= 32 && user_input <= 126)){
-            deck_name[num_of_input] = user_input;
-            num_of_input++;
+            // Select nation with arrow keys => 'M' & 'K' map to KEY_RIGHT and KEY_LEFT
+            if((user_input == 'M') && (new_selected_nat < nations.size()-1)){
+                new_selected_nat++;
+                wattron(create_deck_pane, A_REVERSE);
+                mvwprintw(create_deck_pane,4,19,nations.at(new_selected_nat).c_str());
+                wattroff(create_deck_pane, A_REVERSE);
+            }else if((user_input == 'K') && (new_selected_nat > 0)){
+                new_selected_nat--;
+                wattron(create_deck_pane, A_REVERSE);
+                mvwprintw(create_deck_pane,4,19,nations.at(new_selected_nat).c_str());
+                wattroff(create_deck_pane, A_REVERSE);
+            }else if(user_input == 10){
+                wattroff(create_deck_pane, A_REVERSE);
+                mvwprintw(create_deck_pane,4,19,nations.at(new_selected_nat).c_str());
+                nation_selected = true;
+                new_deck.deck_prefix = nations.at(new_selected_nat);
+            }
+
+        }else{
+            if(num_of_input > 10){
+            num_of_input = 10;
+            }
+
+            if(num_of_input <= 0){
+                num_of_input = 0;
+            }
+
+            // User pressed ENTER to confirm
+            if(num_of_input >= 1 && user_input == 10){
+                confirm_name = true;
+                new_deck.deck_name = deck_name;
+                decks.push_back(new_deck);
+                continue;
+            }
+
+            // User used BACKSPACE
+            if(num_of_input > 0 && user_input == 8){
+
+                num_of_input--;
+                deck_name[num_of_input] = ' ';
+                
+            // Append user character to deck name
+            }else if(num_of_input < 10 && (user_input >= 32 && user_input <= 126)){
+                deck_name[num_of_input] = user_input;
+                num_of_input++;
+            }
+
+            mvwprintw(create_deck_pane,10,15,deck_name.c_str());
         }
 
-        mvwprintw(create_deck_pane,3,15,deck_name.c_str());
-        wattron(create_deck_pane, A_REVERSE);
-        mvwprintw(create_deck_pane,5,19,nations.at(selected_nat).c_str());
-        wattroff(create_deck_pane, A_REVERSE);
         wrefresh(create_deck_pane);
     }
 
     wrefresh(create_deck_pane);
     delwin(create_deck_pane);
-    display_decks();
 }
 
 void Armoury::display_decks(){
@@ -231,12 +250,18 @@ void Armoury::display_decks(){
 
         if(i == d_selected){
             wattron(decks_pane, A_REVERSE);
-            mvwprintw(decks_pane, 2+row*2, col*25 + 2, (decks.at(i)).deck_name.c_str());
-            mvwprintw(decks_pane, 2+row*2, col*25 + (decks.at(i)).deck_name.length() + 2, " (%i/%i)", decks.at(i).current_size, deck_size_limit);
+            mvwprintw(decks_pane, 2+row*2, col*25 + 2, "[");
+            mvwprintw(decks_pane, 2+row*2, col*25 + 3, (decks.at(i)).deck_prefix.c_str());
+            mvwprintw(decks_pane, 2+row*2, col*25 + 6, "]");
+            mvwprintw(decks_pane, 2+row*2, col*25 + 7, (decks.at(i)).deck_name.c_str());
+            mvwprintw(decks_pane, 2+row*2, col*25 + (decks.at(i)).deck_name.length() + 7, " (%i/%i)", decks.at(i).current_size, deck_size_limit);
             wattroff(decks_pane, A_REVERSE);
         }else{
-            mvwprintw(decks_pane, 2+row*2, col*25 + 2, (decks.at(i)).deck_name.c_str());
-            mvwprintw(decks_pane, 2+row*2, col*25 + (decks.at(i)).deck_name.length() + 2, " (%i/%i)", decks.at(i).current_size, deck_size_limit);
+            mvwprintw(decks_pane, 2+row*2, col*25 + 2, "[");
+            mvwprintw(decks_pane, 2+row*2, col*25 + 3, (decks.at(i)).deck_prefix.c_str());
+            mvwprintw(decks_pane, 2+row*2, col*25 + 6, "]");
+            mvwprintw(decks_pane, 2+row*2, col*25 + 7, (decks.at(i)).deck_name.c_str());
+            mvwprintw(decks_pane, 2+row*2, col*25 + (decks.at(i)).deck_name.length() + 7, " (%i/%i)", decks.at(i).current_size, deck_size_limit);
         }
         
         if(row < 9){
