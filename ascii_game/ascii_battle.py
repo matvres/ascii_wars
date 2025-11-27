@@ -22,7 +22,7 @@ import random
 import sys
 
 # Game settings
-WIDTH = 30
+WIDTH = 35
 HEIGHT = 15
 
 # Colors (indices for curses)
@@ -30,32 +30,57 @@ COLOR_P1 = 1
 COLOR_P2 = 2
 COLOR_CURSOR = 3
 COLOR_HIGHLIGHT = 4
+COLOR_ERROR = 99
 
-# Terrain color indices
-COLOR_GRASS = 5
-COLOR_FOREST = 6
-COLOR_WALL = 7
+# Terrain color indices (+ NUMBER OF ELEVATION LEVELS (5))
+COLOR_WATER = 5
+COLOR_GRASS = 10
+COLOR_FOREST = 15
+COLOR_ROAD = 20
+COLOR_FIELD = 25
+COLOR_BUILDING = 30
+COLOR_SHRUB = 35
+
+# Elevation levels:
+COLOR_L0 = 110
+COLOR_L1 = 111
+COLOR_L2 = 112
+COLOR_L3 = 113
+COLOR_L4 = 114
+
+# Terrain types:
+
+
+# Terrain & Elevation COLOR MATRIX
+TERREL_COL_MX = {}
+
+
 
 # Unit definitions
 UNIT_TYPES = {
-    'S': { 'name': 'Soldier', 'cost': 5, 'hp': 10, 'atk': 4, 'move': 3, 'range': 2, 'flying': False },
-    'R': { 'name': 'Ranger',  'cost': 8, 'hp': 8,  'atk': 3, 'move': 3, 'range': 4, 'flying': False },
-    'F': { 'name': 'Flyer',   'cost': 10, 'hp': 7, 'atk': 4, 'move': 4, 'range': 3, 'flying': True },
+    'X': { 'name': 'Infantry',  'cost': 5, 'hp': 6, 'atk': 4, 'move': 2, 'range': 2, 'flying': False },
+    'T': { 'name': 'Ranger',    'cost': 8, 'hp': 8,  'atk': 3, 'move': 2, 'range': 4, 'flying': False },
+    '>': { 'name': 'Atk. Helo', 'cost': 10, 'hp': 7, 'atk': 4, 'move': 4, 'range': 5, 'flying': True },
+    'Ö': { 'name': 'APC',       'cost': 7, 'hp': 6, 'atk': 4, 'move': 3, 'range': 3, 'flying': False },
 }
 
 # Terrain definitions
 TERRAIN_TYPES = {
-    '.': { 'name': 'grass',  'mov_cost': 1, 'pass': True },
-    'f': { 'name': 'forest', 'mov_cost': 1, 'pass': True },
-    'x': { 'name': 'wall',   'mov_cost': 0, 'pass': False },
+    '.': { 'name': 'Open terrain',  'mov_cost': 1, 'pass': True },
+    'f': { 'name': 'Forest', 'mov_cost': 1, 'pass': True },
+    'X': { 'name': 'Road',   'mov_cost': 0, 'pass': True },
+    '~': { 'name': 'Water',  'mov_cost': 0, 'pass': False },
+    '"': { 'name': 'Fields',  'mov_cost': 0, 'pass': True },
+    'H': { 'name': 'House',  'mov_cost': 0, 'pass': True },
+    '*': { 'name': 'Shrubbery',  'mov_cost': 0, 'pass': True },
 }
 
 # Army starting positions
 START_POSITIONS_P1 = [(1,1),(1,3),(1,5),(2,2),(2,4)]
 START_POSITIONS_P2 = [(WIDTH-2,HEIGHT-2),(WIDTH-2,HEIGHT-4),(WIDTH-2,2),(WIDTH-3,3),(WIDTH-3,5)]
 
-ARMY_P1 = ["F","S","S","R","R"]
-ARMY_P2 = ["S","F","F","S","S"]
+ARMY_P1 = [">","X","X","T","T"]
+ARMY_P2 = ["X","X","T","Ö","X"]
 
 
 class Unit:
@@ -96,15 +121,52 @@ class Game:
     def init_colors(self):
         curses.start_color()
         curses.use_default_colors()
-        curses.init_pair(COLOR_P1, 9, -1)
-        curses.init_pair(COLOR_P2, 14, -1)
+
+        # Admin colors
         curses.init_pair(COLOR_CURSOR, curses.COLOR_BLACK, curses.COLOR_WHITE)
-        curses.init_pair(COLOR_HIGHLIGHT, curses.COLOR_YELLOW, -1)
+        curses.init_pair(COLOR_HIGHLIGHT, curses.COLOR_YELLOW, curses.COLOR_WHITE)
+        curses.init_pair(COLOR_ERROR, curses.COLOR_MAGENTA, curses.COLOR_MAGENTA)
+
+        # Players colors
+        curses.init_pair(COLOR_P1, 0, 9)
+        curses.init_pair(COLOR_P2, 0, 6)
+
+        # Elevation colors
+        curses.init_pair(COLOR_L0, -1, 46)
+        curses.init_pair(COLOR_L1, -1, 40)
+        curses.init_pair(COLOR_L2, -1, 34)
+        curses.init_pair(COLOR_L3, -1, 28)
+        curses.init_pair(COLOR_L4, -1, 22)
 
         # Terrain colors
-        curses.init_pair(COLOR_GRASS, 113, 113)
-        curses.init_pair(COLOR_FOREST, 22, 76)
-        curses.init_pair(COLOR_WALL, 58, 113)
+        curses.init_pair(COLOR_GRASS, 22, -1)
+        curses.init_pair(COLOR_FOREST, 22, -1)
+        curses.init_pair(COLOR_ROAD, 142, -1)
+        curses.init_pair(COLOR_WATER, 28, 39)
+        curses.init_pair(COLOR_BUILDING, 52, 166)
+        curses.init_pair(COLOR_FIELD, 184, 112)
+
+        # Init color combinations (terrain + elevation)
+        curses.init_pair(COLOR_L0+COLOR_GRASS, 22, 46)
+        curses.init_pair(COLOR_L1+COLOR_GRASS, 22, 40)
+        curses.init_pair(COLOR_L2+COLOR_GRASS, 22, 34)
+        curses.init_pair(COLOR_L3+COLOR_GRASS, 22, 28)
+        curses.init_pair(COLOR_L4+COLOR_GRASS, 22, 22)
+        curses.init_pair(COLOR_L0+COLOR_FOREST, 22, 46)
+        curses.init_pair(COLOR_L1+COLOR_FOREST, 22, 40)
+        curses.init_pair(COLOR_L2+COLOR_FOREST, 22, 34)
+        curses.init_pair(COLOR_L3+COLOR_FOREST, 22, 28)
+        curses.init_pair(COLOR_L4+COLOR_FOREST, 22, 22)
+        curses.init_pair(COLOR_L0+COLOR_ROAD, 142, 46)
+        curses.init_pair(COLOR_L1+COLOR_ROAD, 142, 40)
+        curses.init_pair(COLOR_L2+COLOR_ROAD, 142, 34)
+        curses.init_pair(COLOR_L3+COLOR_ROAD, 142, 28)
+        curses.init_pair(COLOR_L4+COLOR_ROAD, 142, 22)
+        curses.init_pair(COLOR_L0+COLOR_SHRUB, 22, 46)
+        curses.init_pair(COLOR_L1+COLOR_SHRUB, 22, 40)
+        curses.init_pair(COLOR_L2+COLOR_SHRUB, 22, 34)
+        curses.init_pair(COLOR_L3+COLOR_SHRUB, 22, 28)
+        curses.init_pair(COLOR_L4+COLOR_SHRUB, 22, 22)
 
 
     def populate_units(self):
@@ -137,7 +199,7 @@ class Game:
                     ch = ' '
                 self.stdscr.addch(y, x, ch)
 
-        # Draw grid and units
+        # Draw terrain features and/or units
         for y in range(HEIGHT):
             for x in range(WIDTH):
                 screen_x = x+1
@@ -156,16 +218,85 @@ class Game:
                 # Terrain layer
                 else:
                     #self.stdscr.addch(screen_y, screen_x, map[y][x])
-                    if map[y][x] == '.':
-                        attr = curses.color_pair(COLOR_GRASS)
+                    if map[y][x] == '.' and elev[y][x] == '0':
+                        attr = curses.color_pair(COLOR_GRASS+COLOR_L0)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'f':
-                        attr = curses.color_pair(COLOR_FOREST)
+                    elif map[y][x] == '.' and elev[y][x] == '1':
+                        attr = curses.color_pair(COLOR_GRASS+COLOR_L1)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'x':
-                        attr = curses.color_pair(COLOR_WALL)
+                    elif map[y][x] == '.' and elev[y][x] == '2':
+                        attr = curses.color_pair(COLOR_GRASS+COLOR_L2)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '.' and elev[y][x] == '3':
+                        attr = curses.color_pair(COLOR_GRASS+COLOR_L3)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '.' and elev[y][x] == '4':
+                        attr = curses.color_pair(COLOR_GRASS+COLOR_L4)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
 
+
+                    elif map[y][x] == 'f' and elev[y][x] == '0':
+                        attr = curses.color_pair(COLOR_FOREST+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'f' and elev[y][x] == '1':
+                        attr = curses.color_pair(COLOR_FOREST+COLOR_L1)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'f' and elev[y][x] == '2':
+                        attr = curses.color_pair(COLOR_FOREST+COLOR_L2)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'f' and elev[y][x] == '3':
+                        attr = curses.color_pair(COLOR_FOREST+COLOR_L3)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'f' and elev[y][x] == '4':
+                        attr = curses.color_pair(COLOR_FOREST+COLOR_L4)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+
+                    elif map[y][x] == 'X' and elev[y][x] == '0':
+                        attr = curses.color_pair(COLOR_ROAD+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'X' and elev[y][x] == '1':
+                        attr = curses.color_pair(COLOR_ROAD+COLOR_L1)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'X' and elev[y][x] == '2':
+                        attr = curses.color_pair(COLOR_ROAD+COLOR_L2)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'X' and elev[y][x] == '3':
+                        attr = curses.color_pair(COLOR_ROAD+COLOR_L3)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'X' and elev[y][x] == '4':
+                        attr = curses.color_pair(COLOR_ROAD+COLOR_L4)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+
+                    elif map[y][x] == '*' and elev[y][x] == '0':
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '*' and elev[y][x] == '1':
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '*' and elev[y][x] == '2':
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '*' and elev[y][x] == '3':
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '*' and elev[y][x] == '4':
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+
+                    elif map[y][x] == '"':
+                        attr = curses.color_pair(COLOR_FIELD)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == 'H':
+                        attr = curses.color_pair(COLOR_BUILDING)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+                    elif map[y][x] == '~':
+                        attr = curses.color_pair(COLOR_WATER)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+
+                    else:
+                        attr = curses.color_pair(COLOR_ERROR)
+                        self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
+        
         # Highlight selected unit's possible moves
         if self.selected:
             for y in range(HEIGHT):
@@ -175,7 +306,7 @@ class Game:
                         if not self.unit_at(x,y):
                             sx = x+1; sy = y+1
                             try:
-                                self.stdscr.addch(sy,sx,'+', curses.color_pair(COLOR_HIGHLIGHT))
+                                self.stdscr.addch(sy,sx,'x', curses.color_pair(COLOR_HIGHLIGHT))
                             except curses.error:
                                 pass
 
@@ -193,17 +324,20 @@ class Game:
         info_x = WIDTH + 4
         self.stdscr.addstr(info_y, info_x, f"Turn: Player {self.turn}")
         self.stdscr.addstr(info_y+1, info_x, f"Cursor: ({self.cursor_x},{self.cursor_y})")
-        self.stdscr.addstr(info_y+2, info_x, f"---------------------------------")
+        self.stdscr.addstr(info_y+2, info_x, f"Terrain: {TERRAIN_TYPES[map[self.cursor_y][self.cursor_x]]['name']}")
+        self.stdscr.addstr(info_y+3, info_x, f"Elevation: {elev[self.cursor_y][self.cursor_x]} + <add terrain elevation>")
+        self.stdscr.addstr(info_y+4, info_x, f"---------------------------------")
         u = self.unit_at(self.cursor_x, self.cursor_y)
+
         if u:
-            self.stdscr.addstr(info_y+3, info_x, f"Unit: {'P1' if u.owner==1 else 'P2'} {u.kind} ({u.name})")
-            self.stdscr.addstr(info_y+4, info_x, f"HP: {u.hp}/{u.max_hp}")
-            self.stdscr.addstr(info_y+5, info_x, f"ATK: {u.atk}")
-            self.stdscr.addstr(info_y+6, info_x, f"MOV: {u.move_range}")
-            self.stdscr.addstr(info_y+7, info_x, f"Moved: {u.moved}")
-            self.stdscr.addstr(info_y+8, info_x, f"Acted: {u.acted}")
+            self.stdscr.addstr(info_y+5, info_x, f"Unit: {'Player1' if u.owner==1 else 'Player2'} [ {u.kind} ] ({u.name})")
+            self.stdscr.addstr(info_y+6, info_x, f"HP: {u.hp}/{u.max_hp}")
+            self.stdscr.addstr(info_y+7, info_x, f"ATK: {u.atk}")
+            self.stdscr.addstr(info_y+8, info_x, f"MOV: {u.move_range}")
+            self.stdscr.addstr(info_y+9, info_x, f"Moved: {u.moved}")
+            self.stdscr.addstr(info_y+10, info_x, f"Acted: {u.acted}")
         else:
-            self.stdscr.addstr(info_y+3, info_x, "Empty")
+            self.stdscr.addstr(info_y+5, info_x, "Empty")
 
         # Selected unit info
         if self.selected:
@@ -363,14 +497,25 @@ def load_map(filename):
             grid.append(row)
     return grid
 
+def load_elev(filename):
+    grid = []
+    with open(filename, "r") as f:
+        for line in f:
+            row = (line.rstrip("\n")).split(",")
+            grid.append(row)
+    return grid
+
 def main(stdscr):
     g = Game(stdscr)
     g.game_loop()
 
 if __name__ == '__main__':
 
-    map = load_map("map.txt")
+    map = load_map("map4.txt")
     #print(map)
+    elev = load_elev("elevation.txt")
+    #print(elev)
+    #print(elev[4][7])
 
     try:
         curses.wrapper(main)

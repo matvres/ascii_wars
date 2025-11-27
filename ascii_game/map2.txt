@@ -1,0 +1,15 @@
+.fff.........X.....~ffffff.fffffff.
+.ff.f....f.ffX...f.~.....ff.fffffff
+.ff...fff..f.X.fff.~......fffffffff
+fff..f.f.fff.X.ff..~..fffff....ffff
+..f.f...fff..X..fff~.f.ffff....ffff
+..f.fff..fff.XXXXXXXXXXXXXXX.......
+.....ff.fffffX.fff.~....fffXXXXXXXX
+XXXX.f..f..f.X.f.f.~....ff.........
+...X.ff.fff.fX..ff.~....fff...f....
+.f.X..f.ff.f.Xf.f.~~.....ff..ff....
+.f.X.f..ff...X.ff.~fff..ff.....ffff
+.ff.X.X.....X..f..~fff..fff....ffff
+fff..XXXXXXX...f..~fff..fff....ffff
+.ff.........ff.f..~.fff......ffffff
+..ff.fffff.ff.....~..........ffffff
