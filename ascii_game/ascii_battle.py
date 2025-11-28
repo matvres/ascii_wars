@@ -48,39 +48,54 @@ COLOR_L2 = 112
 COLOR_L3 = 113
 COLOR_L4 = 114
 
-# Terrain types:
-
-
-# Terrain & Elevation COLOR MATRIX
-TERREL_COL_MX = {}
-
-
 
 # Unit definitions
+"""
+size: 1-10 ? (relevant for transport cargo/troops and spotting via optics)
+arm: armor
+optics: range 1-3 (bad-medium-good)
+ws1 & ws2: weapon systems index (look at WEAPON_SYSTEM_TYPES)
+"""
 UNIT_TYPES = {
-    'X': { 'name': 'Infantry',  'cost': 5, 'hp': 6, 'atk': 4, 'move': 2, 'range': 2, 'flying': False },
-    'T': { 'name': 'Ranger',    'cost': 8, 'hp': 8,  'atk': 3, 'move': 2, 'range': 4, 'flying': False },
-    '>': { 'name': 'Atk. Helo', 'cost': 10, 'hp': 7, 'atk': 4, 'move': 4, 'range': 5, 'flying': True },
-    'Ö': { 'name': 'APC',       'cost': 7, 'hp': 6, 'atk': 4, 'move': 3, 'range': 3, 'flying': False },
+    'X': { 'name': 'Infantry',      'size':2,   'hp': 6, 'arm': 0,   'move': 2,  'flying': False,  'amph': False, 'ws1': 1, 'ws2': 2, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 1 },
+    'T': { 'name': 'Tank',          'size':5,   'hp': 6, 'arm': 4,   'move': 2,  'flying': False,  'amph': False, 'ws1': 5, 'ws2': 3, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 1  },
+    '>': { 'name': 'Atk. Helo',     'size':7,   'hp': 5, 'arm': 1,   'move': 4,  'flying': True,   'amph': False, 'ws1': 4, 'ws2': 0, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 3  },
+    'O': { 'name': 'APC',           'size':5,   'hp': 6, 'arm': 2,   'move': 3,  'flying': False,  'amph': True , 'ws1': 4, 'ws2': 0, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 1 },
+    'R': { 'name': 'Recon',         'size':1,   'hp': 4, 'arm': 0,   'move': 3,  'flying': False,  'amph': False, 'ws1': 1, 'ws2': 2, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 3  },
+    'm': { 'name': 'Mortar',        'size':3,   'hp': 4, 'arm': 0,   'move': 1,  'flying': False,  'amph': False, 'ws1': 6, 'ws2': 0, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 2 },    # lahko dodamo radio operaterja kasneje k mortarju doda optics + range
+    'C': { 'name': 'Cargo Truck',   'size':4,   'hp': 4, 'arm': 0,   'move': 3,  'flying': False,  'amph': False, 'ws1': 0, 'ws2': 0, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 1  },
+    'A': { 'name': 'AA Gun',        'size':5,   'hp': 5, 'arm': 2,   'move': 2,  'flying': False,  'amph': False, 'ws1': 7, 'ws2': 7, 'ws1_ammo': 0, 'ws2_ammo': 0, 'optics': 2  },
+}
+
+# Weapon systems definitions
+WEAPON_SYSTEM_TYPES = {
+    0 : { 'name': '/',              'arm_pen': 0,  'dmg_val': 0, 'att_range': 0,   'ammo': 0,  'antiair': False },
+    1 : { 'name': 'Small Arms',     'arm_pen': 1,  'dmg_val': 2, 'att_range': 2,   'ammo': 5,  'antiair': False },
+    2 : { 'name': 'AT Rocket',      'arm_pen': 5,  'dmg_val': 3, 'att_range': 2,   'ammo': 1,  'antiair': False },
+    3 : { 'name': 'Light MG',       'arm_pen': 1,  'dmg_val': 2, 'att_range': 3,   'ammo': 4,  'antiair': False },
+    4 : { 'name': 'Heavy MG',       'arm_pen': 2,  'dmg_val': 3, 'att_range': 4,   'ammo': 4,  'antiair': False },
+    5 : { 'name': 'Cannon',         'arm_pen': 5,  'dmg_val': 3, 'att_range': 5,   'ammo': 4,  'antiair': False },
+    6 : { 'name': 'Heavy Mortar',   'arm_pen': 4,  'dmg_val': 6, 'att_range': 10,  'ammo': 3,  'antiair': False }, 
+    7 : { 'name': 'MANPADS',        'arm_pen': 4,  'dmg_val': 5, 'att_range': 10,  'ammo': 3,  'antiair': True }, 
 }
 
 # Terrain definitions
 TERRAIN_TYPES = {
-    '.': { 'name': 'Open terrain',  'mov_cost': 1, 'pass': True },
-    'f': { 'name': 'Forest', 'mov_cost': 1, 'pass': True },
-    'X': { 'name': 'Road',   'mov_cost': 0, 'pass': True },
-    '~': { 'name': 'Water',  'mov_cost': 0, 'pass': False },
-    '"': { 'name': 'Fields',  'mov_cost': 0, 'pass': True },
-    'H': { 'name': 'House',  'mov_cost': 0, 'pass': True },
-    '*': { 'name': 'Shrubbery',  'mov_cost': 0, 'pass': True },
+    '.': { 'name': 'Open terrain',  'cover_lvl': 0, 'conceal': 0, 'mov_cost': 1, 'el_height': 0,  'pass': True,   'los': True },
+    'f': { 'name': 'Light Woods',   'cover_lvl': 1, 'conceal': 2, 'mov_cost': 2, 'el_height': 1,  'pass': True,   'los': False },
+    '+': { 'name': 'Road',          'cover_lvl': 0, 'conceal': 0, 'mov_cost': 1, 'el_height': 0,  'pass': True,   'los': True },
+    '~': { 'name': 'Water',         'cover_lvl': 0, 'conceal': 0, 'mov_cost': 0, 'el_height': 0,  'pass': False,  'los': True },
+    'F': { 'name': 'Heavy Woods',   'cover_lvl': 2, 'conceal': 3, 'mov_cost': 2, 'el_height': 1,  'pass': True,   'los': False },
+    'H': { 'name': 'House',         'cover_lvl': 2, 'conceal': 4, 'mov_cost': 2, 'el_height': 1,  'pass': True,   'los': False },
+    '*': { 'name': 'Shrubbery',     'cover_lvl': 0, 'conceal': 1, 'mov_cost': 1, 'el_height': 0,  'pass': True,   'los': False },
 }
 
 # Army starting positions
-START_POSITIONS_P1 = [(1,1),(1,3),(1,5),(2,2),(2,4)]
-START_POSITIONS_P2 = [(WIDTH-2,HEIGHT-2),(WIDTH-2,HEIGHT-4),(WIDTH-2,2),(WIDTH-3,3),(WIDTH-3,5)]
+START_POSITIONS_P1 = [(1,1),(1,3),(1,5),(2,2),(2,4),(2,7)]
+START_POSITIONS_P2 = [(WIDTH-2,HEIGHT-2),(WIDTH-2,HEIGHT-4),(WIDTH-2,2),(WIDTH-3,3),(WIDTH-3,5),(WIDTH-3,1)]
 
-ARMY_P1 = [">","X","X","T","T"]
-ARMY_P2 = ["X","X","T","Ö","X"]
+ARMY_P1 = [">","X","O","T","m","R"]
+ARMY_P2 = ["X","X","T","O","X","X"]
 
 
 class Unit:
@@ -93,10 +108,18 @@ class Unit:
         self.name = un['name']
         self.max_hp = un['hp'] 
         self.hp = self.max_hp
-        self.atk = un['atk']
+        self.arm = un['arm']
+
         self.move_range = un['move']
-        self.att_range = un['range']
+        self.amph = un['amph']
         self.flying = un['flying']
+
+        self.ws1 = un['ws1']
+        self.ws2 = un['ws2']
+        self.ws1_ammo = WEAPON_SYSTEM_TYPES[self.ws1]['ammo']
+        self.ws2_ammo = WEAPON_SYSTEM_TYPES[self.ws2]['ammo']
+       
+        # At some point se lahko doda action points system in cost-per-action/movement
         self.moved = False
         self.acted = False
 
@@ -105,6 +128,13 @@ class Unit:
 
     def distance_to(self, x, y):
         return abs(self.x - x) + abs(self.y - y)
+    
+    def display_ammo(self, ws_ammo):
+        ammo = ""
+        for i in range(ws_ammo):
+            ammo+="|"
+        return ammo
+
 
 class Game:
     def __init__(self, stdscr):
@@ -123,8 +153,8 @@ class Game:
         curses.use_default_colors()
 
         # Admin colors
-        curses.init_pair(COLOR_CURSOR, curses.COLOR_BLACK, curses.COLOR_WHITE)
-        curses.init_pair(COLOR_HIGHLIGHT, curses.COLOR_YELLOW, curses.COLOR_WHITE)
+        curses.init_pair(COLOR_CURSOR, curses.COLOR_BLACK, 230)
+        curses.init_pair(COLOR_HIGHLIGHT, curses.COLOR_YELLOW, 220)
         curses.init_pair(COLOR_ERROR, curses.COLOR_MAGENTA, curses.COLOR_MAGENTA)
 
         # Players colors
@@ -143,8 +173,7 @@ class Game:
         curses.init_pair(COLOR_FOREST, 22, -1)
         curses.init_pair(COLOR_ROAD, 142, -1)
         curses.init_pair(COLOR_WATER, 28, 39)
-        curses.init_pair(COLOR_BUILDING, 52, 166)
-        curses.init_pair(COLOR_FIELD, 184, 112)
+        curses.init_pair(COLOR_BUILDING, 52, 130)
 
         # Init color combinations (terrain + elevation)
         curses.init_pair(COLOR_L0+COLOR_GRASS, 22, 46)
@@ -235,35 +264,35 @@ class Game:
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
 
 
-                    elif map[y][x] == 'f' and elev[y][x] == '0':
+                    elif (map[y][x] == 'f' or map[y][x] == 'F') and elev[y][x] == '0':
                         attr = curses.color_pair(COLOR_FOREST+COLOR_L0)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'f' and elev[y][x] == '1':
+                    elif (map[y][x] == 'f' or map[y][x] == 'F') and elev[y][x] == '1':
                         attr = curses.color_pair(COLOR_FOREST+COLOR_L1)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'f' and elev[y][x] == '2':
+                    elif (map[y][x] == 'f' or map[y][x] == 'F') and elev[y][x] == '2':
                         attr = curses.color_pair(COLOR_FOREST+COLOR_L2)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'f' and elev[y][x] == '3':
+                    elif (map[y][x] == 'f' or map[y][x] == 'F') and elev[y][x] == '3':
                         attr = curses.color_pair(COLOR_FOREST+COLOR_L3)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'f' and elev[y][x] == '4':
+                    elif (map[y][x] == 'f' or map[y][x] == 'F') and elev[y][x] == '4':
                         attr = curses.color_pair(COLOR_FOREST+COLOR_L4)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
 
-                    elif map[y][x] == 'X' and elev[y][x] == '0':
+                    elif map[y][x] == '+' and elev[y][x] == '0':
                         attr = curses.color_pair(COLOR_ROAD+COLOR_L0)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'X' and elev[y][x] == '1':
+                    elif map[y][x] == '+' and elev[y][x] == '1':
                         attr = curses.color_pair(COLOR_ROAD+COLOR_L1)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'X' and elev[y][x] == '2':
+                    elif map[y][x] == '+' and elev[y][x] == '2':
                         attr = curses.color_pair(COLOR_ROAD+COLOR_L2)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'X' and elev[y][x] == '3':
+                    elif map[y][x] == '+' and elev[y][x] == '3':
                         attr = curses.color_pair(COLOR_ROAD+COLOR_L3)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
-                    elif map[y][x] == 'X' and elev[y][x] == '4':
+                    elif map[y][x] == '+' and elev[y][x] == '4':
                         attr = curses.color_pair(COLOR_ROAD+COLOR_L4)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
 
@@ -271,16 +300,16 @@ class Game:
                         attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
                     elif map[y][x] == '*' and elev[y][x] == '1':
-                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L1)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
                     elif map[y][x] == '*' and elev[y][x] == '2':
-                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L2)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
                     elif map[y][x] == '*' and elev[y][x] == '3':
-                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L3)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
                     elif map[y][x] == '*' and elev[y][x] == '4':
-                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L0)
+                        attr = curses.color_pair(COLOR_SHRUB+COLOR_L4)
                         self.stdscr.addch(screen_y, screen_x, map[y][x], attr)
 
                     elif map[y][x] == '"':
@@ -325,30 +354,43 @@ class Game:
         self.stdscr.addstr(info_y, info_x, f"Turn: Player {self.turn}")
         self.stdscr.addstr(info_y+1, info_x, f"Cursor: ({self.cursor_x},{self.cursor_y})")
         self.stdscr.addstr(info_y+2, info_x, f"Terrain: {TERRAIN_TYPES[map[self.cursor_y][self.cursor_x]]['name']}")
-        self.stdscr.addstr(info_y+3, info_x, f"Elevation: {elev[self.cursor_y][self.cursor_x]} + <add terrain elevation>")
-        self.stdscr.addstr(info_y+4, info_x, f"---------------------------------")
+        self.stdscr.addstr(info_y+3, info_x, f"Elevation: {elev[self.cursor_y][self.cursor_x]} (+{TERRAIN_TYPES[map[self.cursor_y][self.cursor_x]]['el_height']} per terrain)" )
+        self.stdscr.addstr(info_y+4, info_x, f"------------------------------------")
         u = self.unit_at(self.cursor_x, self.cursor_y)
 
         if u:
             self.stdscr.addstr(info_y+5, info_x, f"Unit: {'Player1' if u.owner==1 else 'Player2'} [ {u.kind} ] ({u.name})")
-            self.stdscr.addstr(info_y+6, info_x, f"HP: {u.hp}/{u.max_hp}")
-            self.stdscr.addstr(info_y+7, info_x, f"ATK: {u.atk}")
-            self.stdscr.addstr(info_y+8, info_x, f"MOV: {u.move_range}")
-            self.stdscr.addstr(info_y+9, info_x, f"Moved: {u.moved}")
-            self.stdscr.addstr(info_y+10, info_x, f"Acted: {u.acted}")
+            self.stdscr.addstr(info_y+6, info_x, f"HP: {u.hp}/{u.max_hp}    ARMOR: {u.arm}")
+            self.stdscr.addstr(info_y+7, info_x, f"MOVEMENT: {u.move_range}")
+            self.stdscr.addstr(info_y+8, info_x, f"------------------------------------")
+            self.stdscr.addstr(info_y+9, info_x, f"[1. WPN]: {WEAPON_SYSTEM_TYPES[u.ws1]['name']} (range: {WEAPON_SYSTEM_TYPES[u.ws1]['att_range']})")
+            self.stdscr.addstr(info_y+10, info_x, f"[stats]: DMG: {WEAPON_SYSTEM_TYPES[u.ws1]['dmg_val']} (Arm. Pen. = {WEAPON_SYSTEM_TYPES[u.ws1]['arm_pen']})")
+            self.stdscr.addstr(info_y+11, info_x, f"[ammo]: {u.display_ammo(u.ws1_ammo)}")
+            self.stdscr.addstr(info_y+12, info_x, f" ")
+            self.stdscr.addstr(info_y+13, info_x, f"[2. WPN]: {WEAPON_SYSTEM_TYPES[u.ws2]['name']} (range: {WEAPON_SYSTEM_TYPES[u.ws2]['att_range']})")             # tle naredi tko da če 2.wpn ne obstaja sploh ne izpisuj
+            self.stdscr.addstr(info_y+14, info_x, f"[stats]: DMG: {WEAPON_SYSTEM_TYPES[u.ws2]['dmg_val']} (Arm. Pen. = {WEAPON_SYSTEM_TYPES[u.ws2]['arm_pen']})")
+            self.stdscr.addstr(info_y+15, info_x, f"[ammo]: {u.display_ammo(u.ws2_ammo)}")
+            self.stdscr.addstr(info_y+16, info_x, f"------------------------------------")
+            self.stdscr.addstr(info_y+17, info_x, f"Moved: {u.moved}")
+            self.stdscr.addstr(info_y+18, info_x, f"Acted: {u.acted}")
         else:
             self.stdscr.addstr(info_y+5, info_x, "Empty")
 
         # Selected unit info
         if self.selected:
-            self.stdscr.addstr(info_y+8, info_x, f"Selected: {'P1' if self.selected.owner==1 else 'P2'} {self.selected.kind} ({self.selected.hp}HP)")
+            self.stdscr.addstr(info_y+19, info_x, f"Selected: {self.selected.name} at ({self.cursor_x},{self.cursor_y})")
 
         # Message
         self.stdscr.addstr(HEIGHT+3, 0, self.message[:curses.COLS-1])
 
-        # Turn instructions
+        # Objectives
         ins_y = HEIGHT+5
-        self.stdscr.addstr(ins_y, 0, "Arrows: move cursor  Enter: select  m:move  a:attack  e:end turn  q:quit")
+        self.stdscr.addstr(ins_y, 0, "[OBJECTIVE]: eliminate enemy forces")
+        self.stdscr.refresh()
+
+        # Turn instructions
+        ins_y = HEIGHT+8
+        self.stdscr.addstr(ins_y, 0, "KEYBINDS: move cursor  Enter: select  m:move  a:attack  e:end turn  q:quit")
         self.stdscr.refresh()
 
     def select_unit(self):
@@ -392,6 +434,10 @@ class Game:
         self.selected.moved = True
         self.message = f"Moved to ({self.cursor_x},{self.cursor_y})."
 
+
+    # NEEDS MAJOF FIXING
+    # funkcijo je treba prilagodit z novimi formulami za izračun napada:
+    # upoštevat elevation, LOS, hit chance, armor pen, cover ...
     def attack_with_selected(self):
         if not self.selected:
             self.message = "No unit selected."
@@ -418,6 +464,9 @@ class Game:
         if target.hp <= 0:
             self.message += " Enemy died!"
 
+    # TREBA DODAT FUNKCIJO ZA LOS: concealment (+elevation) VS optics range
+
+
     def end_turn(self):
         # reset moved/acted flags for next player's units
         for u in self.units:
@@ -437,6 +486,8 @@ class Game:
         if not p2_alive:
             return 1
         return None
+    
+        # ADD OBJECTIVES...
 
     def game_loop(self):
         curses.curs_set(0)
@@ -511,9 +562,9 @@ def main(stdscr):
 
 if __name__ == '__main__':
 
-    map = load_map("map4.txt")
+    map = load_map("map3.txt")
     #print(map)
-    elev = load_elev("elevation.txt")
+    elev = load_elev("elevation2.txt")
     #print(elev)
     #print(elev[4][7])
 
