@@ -1,14 +1,14 @@
 # ASCII WARS
 
-## Run:
-python3 ./< ... .py>
+All relevant files now in */ascii_game*/ folder, the rest is deprecated old stuff
 
-## ----Deprecated: c++ terminal game design
+## How to run:
+python3 ascii_battle.py
 
+
+
+## ----Deprecated:
 ### How to compile:
 g++ test.cpp -o test.exe -lncurses -DNCURSES_STATIC 
-
--> check GDD.txt za development plan
-
 ### How to run:
 open START.bat
